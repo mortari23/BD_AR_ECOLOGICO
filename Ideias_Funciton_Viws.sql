@@ -109,15 +109,15 @@ GO
 
 SELECT * FROM VW_CONTRATOS_PESSOAS_EQUIPAMENTOS;
 
----Consultar Todas as pessoas Fisicas ou Juridicas que Tem uma ordem de serviço, trazer a data de abertura do serviço e a data de
---encerramento, o valor do serviço, o que foi efetuado naquele serviço, o prestador de serviço que fez o serviço,
+---Consultar Todas as pessoas Fisicas ou Juridicas que Tem uma ordem de serviço, trazer a data de abertura do serviço e
+--o valor do serviço, o que foi efetuado naquele serviço, o prestador de serviço que fez o serviço,
 
-CREATE VIEW VW_ORDENS_SERVICO_PESSOAS
+CREATE OR ALTER VIEW VW_ORDENS_SERVICO_PESSOAS
 AS
 SELECT
     OS.COD_OS,
     CASE WHEN OS.PESSOA_F_COD IS NOT NULL THEN 'FISICA' ELSE 'JURIDICA' END AS TIPO_PESSOA,
-    P.COD_PESSOA,
+    P.COD_PESSOA                    AS COD_PESSOA,
     P.NOME                          AS NOME_CLIENTE,
     COALESCE(PF.CPF, PJ.CNPJ)       AS DOCUMENTO,
     OS.TIPO_OS,
@@ -125,25 +125,25 @@ SELECT
         WHEN 1 THEN 'ABERTA'
         WHEN 2 THEN 'EM ANDAMENTO'
         WHEN 3 THEN 'CONCLUIDA'
+        WHEN 4 THEN 'CANCELADO'
     END                             AS STATUS_DESCRICAO,
-    OS.DATA_ABERTURA,               
-    OS.DATA_EXECUCAO                AS DATA_ENCERRAMENTO,
+    OS.DATA_ABERTURA,
     OS.VALOR                        AS VALOR_OS,
     OS.DESCRICAO_PROBLEMA,
-    OS.DESCRICAO_EXECUTADO          AS O_QUE_FOI_EFETUADO,
-    OS.PRESTADOR_SERVICO_COD,
+    OS.DESCRICAO_EXECUTADO          AS O_QUE_FOI_FEITO,
+    OS.PRESTADOR_SERVICO_COD        AS PRESTADOR,
     PP.NOME                         AS NOME_PRESTADOR
-    FROM ORDENS_SERVICOS OS
-    INNER   JOIN     PESSOAS P              ON  P.COD_PESSOA = COALESCE(OS.PESSOA_F_COD, OS.PESSOA_J_COD)
-    LEFT    JOIN     PESSOAS_FISICAS PF     ON  PF.PESSOA_FISICA_COD = OS.PESSOA_F_COD
-    LEFT    JOIN     PESSOAS_JURIDICAS PJ   ON  PJ.PESSOA_JURIDICA_COD = OS.PESSOA_F_COD
-    LEFT    JOIN     PRESTADOR_SERVICOS PS  ON  PS.PRESTADOR_COD = OS.PRESTADOR_SERVICO_COD
-    LEFT    JOIN     PESSOAS            PP  ON  PP.COD_PESSOA = PS.PRESTADOR_COD
-    GO
+FROM ORDENS_SERVICOS OS
+INNER JOIN PESSOAS P             ON P.COD_PESSOA = COALESCE(OS.PESSOA_F_COD, OS.PESSOA_J_COD)
+LEFT  JOIN PESSOAS_FISICAS PF    ON PF.PESSOA_FISICA_COD   = OS.PESSOA_F_COD
+LEFT  JOIN PESSOAS_JURIDICAS PJ  ON PJ.PESSOA_JURIDICA_COD = OS.PESSOA_J_COD
+LEFT  JOIN PRESTADOR_SERVICOS PS ON PS.PRESTADOR_COD = OS.PRESTADOR_SERVICO_COD
+LEFT  JOIN PESSOAS PP            ON PP.COD_PESSOA    = PS.PRESTADOR_COD
+GO
 
-    SELECT * FROM VW_ORDENS_SERVICO_PESSOAS
-
-    DROP VIEW VW_ORDENS_SERVICO_PESSOAS
+SELECT * FROM VW_ORDENS_SERVICO_PESSOAS
+    
+DROP VIEW VW_ORDENS_SERVICO_PESSOAS
 
 
 --Consultar Todas as ordens de serviços e seus respectivos serviços efetuados
