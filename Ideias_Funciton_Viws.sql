@@ -1,5 +1,32 @@
 ---FUNCTION BANCO
+--- consultar todas as ordens de serviço de um cliente pelo nome dele
 
+CREATE FUNCTION FC_HISTORICO_SERVICOS (@NOME varchar(100))
+RETURNS TABLE
+AS  
+RETURN
+(
+    SELECT  P.NOME, P.CIDADE, P.TELEFONE, PF.CPF, PJ.CNPJ,
+            COALESCE(PF.CPF, PJ.CNPJ) AS DOCUMENTO,
+            OS.COD_OS,
+            OS.TIPO_OS,
+            CASE OS.STATUS
+                WHEN 1 THEN 'ABERTA'
+                WHEN 2 THEN 'EM ANDAMENTO'
+                WHEN 3 THEN 'CONCLUIDA'
+                WHEN 4 THEN 'CANCELADA'
+            END                     AS STATUS_DESCRICAO,
+            OS.DATA_ABERTURA,
+            OS.DATA_EXECUCAO,
+            OS.VALOR,
+            OS.DESCRICAO_PROBLEMA,
+            OS.DESCRICAO_EXECUTADO  AS O_QUE_FOI_FEITO
+    FROM PESSOAS P
+    LEFT JOIN PESSOAS_FISICAS PF    ON P.COD_PESSOA = PF.PESSOA_FISICA_COD
+    LEFT JOIN PESSOAS_JURIDICAS PJ  ON P.COD_PESSOA = PJ.PESSOA_JURIDICA_COD
+    INNER JOIN ORDENS_SERVICOS  OS  ON OS.PESSOA_F_COD = P.COD_PESSOA OR OS.PESSOA_J_COD = P.COD_PESSOA
+    WHERE P.NOME LIKE '%' + @NOME + '%'
+)
 
 --TIPO-VARIAVEL
 -- Total liquido de uma OS: soma de (QTD * VALOR - DESCONTO) dos servicos
