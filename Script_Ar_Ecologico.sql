@@ -44,7 +44,7 @@ CREATE TABLE CONTRATOS (
     DATA_FIM            DATE            NOT NULL,
     TIPO_CONTRATO       VARCHAR(50)     NOT NULL,
     OBS                 VARCHAR(500)    NULL,
-    STATUS                  INT         NOT NULL CHECK (STATUS IN (1, 2),
+    STATUS                  INT         NOT NULL CHECK (STATUS IN (1, 2)),
     COD_PESSOA_FISICA   INT             NULL,
     COD_PESSOA_JURIDICA INT             NULL,
     FOREIGN KEY (COD_PESSOA_FISICA)   REFERENCES PESSOAS_FISICAS (PESSOA_FISICA_COD),
