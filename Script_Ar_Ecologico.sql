@@ -69,7 +69,10 @@ GO
 CREATE TABLE CONTRATOS_EQUIPAMENTOS (
     CONTRATO_COD        INT NOT NULL,
     EQUIPAMENTO_COD     INT NOT NULL,
-    QTD                 INT NOT NULL (QTD > 0),
+    -- ERRO CORRIGIDO: faltava a palavra CHECK antes de (QTD > 0).
+    -- Antes: QTD INT NOT NULL (QTD > 0),
+    -- Esse erro impedia a criacao desta tabela e, por isso, EQUIPAMENTOS ficava sem ligacao com nenhuma tabela.
+    QTD                 INT NOT NULL CHECK (QTD > 0),
     PRIMARY KEY (CONTRATO_COD, EQUIPAMENTO_COD),
     FOREIGN KEY (CONTRATO_COD)    REFERENCES CONTRATOS (COD_CONTRATO),
     FOREIGN KEY (EQUIPAMENTO_COD) REFERENCES EQUIPAMENTOS (COD_EQUIPAMENTO)
